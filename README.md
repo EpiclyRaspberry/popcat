@@ -1,10 +1,10 @@
-# asyncat
+# popcat
 an asynchronous api wrapper for https://popcat.xyz/api
 
 ## basic usage
 ```python
 import asyncio
-from asyncat import PopCat
+from popcat import PopCat
 
 async def  main():
     async with PopCat() as cat:
