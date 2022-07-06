@@ -13,4 +13,13 @@ class SongNotFound(PopCatException):
         super().__init__(f"Song {song} not found")
 
 
+class InvalidURL(PopCatException):
+    def __init__(self,url):
+        self.url=url 
+        super().__init__(f"URL {url} is invalid")
+
+
+
+
+
 
