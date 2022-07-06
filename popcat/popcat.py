@@ -2,7 +2,8 @@ import aiohttp
 import re
 from io import BytesIO
 from .exceptions import InvalidColor, SongNotFound, InvalidURL, SubRedditNotFound
-from .models import Color, Song, Thought, SubReddit
+from .models import Color, Song, Thought, SubReddit,\
+                    Quote
 URL_REGEX=re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
 
 BASE_URL="https://api.popcat.xyz/"
@@ -68,13 +69,30 @@ class PopCat:
             res=await resp.json()
             return Thought(res["result"],res["author"],res["upvotes"])
     async def quote (self):
-        pass
+        async with self.get(apiurl("quote")) as resp:
+            res=await resp.json()
+            return Quote(res["content"], res["upvotes"])
     async def subreddit(self, subreddit):
         async with self.get(apiurl("subreddit/"+subreddit)) as resp:
             
             if await resp.json()==SUBREDDIT_NOT_FOUND:
                 raise SubRedditNotFound(subreddit)
             return SubReddit(await resp.json())
+    async def lulcat(self,text):
+        async with self.get(apiurl("lulcat",text=text)) as resp:
+            return (await resp.json())["text"]
+
+    async def fact(self):
+        async with self.get(apiurl("fact")) as resp:
+            return (await resp.json())["fact"]
+
+    async def mock(self,text):
+        async with self.get(apiurl("mock",text=text)) as resp:
+            return (await resp.json())["text"]
+    
+    async def joke(self):
+        async with self.get(apiurl("joke")) as resp:
+            return (await resp.json())["joke"]
 
 
 

@@ -42,5 +42,8 @@ class SubReddit(PopCatObject):
         self.nsfw=obj["over_18"]
         self.url=obj["url"]
 
-
+class Quote(PopCatObject):
+    def __init__(self,content, upvotes):
+        self.content=content 
+        self.upvotes=upvotes
 
