@@ -18,7 +18,10 @@ class InvalidURL(PopCatException):
         self.url=url 
         super().__init__(f"URL {url} is invalid")
 
-
+class SubRedditNotFound(PopCatException):
+    def __init__(self, subreddit):
+        self.subreddit=subreddit 
+        super().__init__(f"Subreddit {subreddit} not found")
 
 
 

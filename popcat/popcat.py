@@ -1,12 +1,19 @@
 import aiohttp
 import re
 from io import BytesIO
-from .exceptions import InvalidColor, SongNotFound, InvalidURL
-from .models import Color, Song
+from .exceptions import InvalidColor, SongNotFound, InvalidURL, SubRedditNotFound
+from .models import Color, Song, Thought, SubReddit
 URL_REGEX=re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
+
 BASE_URL="https://api.popcat.xyz/"
+# endpoints erorrs
 COLOR_INVALID={"error":"Not valid!"}
 SONG_NOT_FOUND={"error":"Song not found!"}
+SUBREDDIT_NOT_FOUND={
+ "error": "Invalid subreddit!"
+}
+
+
 def apiurl(path,**params):
     param:str="?"
     if params:
@@ -52,9 +59,22 @@ class PopCat:
                 return buffer
         raise InvalidURL(url)
     async def chatbot(self,message,owner=None,botname=None):
-        async with self.get(apiurl("chatbot/",msg=message,owner=owner, botname=botname)) as resp:
+        async with self.get(apiurl("chatbot",msg=message,owner=owner, botname=botname)) as resp:
             return (await resp.json())["response"]
-
+    
+    
+    async def showerthoughts(self):
+        async with self.get(apiurl("showerthoughts")) as resp:
+            res=await resp.json()
+            return Thought(res["result"],res["author"],res["upvotes"])
+    async def quote (self):
+        pass
+    async def subreddit(self, subreddit):
+        async with self.get(apiurl("subreddit/"+subreddit)) as resp:
+            
+            if await resp.json()==SUBREDDIT_NOT_FOUND:
+                raise SubRedditNotFound(subreddit)
+            return SubReddit(await resp.json())
 
 
 
