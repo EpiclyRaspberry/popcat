@@ -22,4 +22,9 @@ asyncio.run(main())
 /showerthoughts
 /chatbot
 /subreddit
+/quote
+/joke
+/fact
+/lulcat
+/mock
 ```
