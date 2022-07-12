@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
-
+extras={
+    "dpy":["discord.py=>1.0.0"],
+    "pillow":["pillow"]
+}
 setup(
    name="popcat",
    version="0.0.1",
@@ -8,7 +11,8 @@ setup(
    description="An asynchronous api wrapper for popcat.xyz",
    long_description="An asynchronous api wrapper for popcat.xyz",
    packages=find_packages(),
-   install_requires=["aiohttp"],
+   install_requires=["aiohttp","aiofiles"],
+   extras_require=extras,
    classifiers=[
    "Development Status :: 2 - Pre-Alpha",
    "License :: OSI Approved :: MIT License",
