@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 extras={
-    "dpy":["discord.py=>1.0.0"],
+    "dpy":["discord.py>=1.0.0"],
     "pillow":["pillow"]
 }
 setup(
