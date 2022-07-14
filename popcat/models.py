@@ -1,5 +1,14 @@
 from io import BytesIO
-
+from typing import Union
+from requests import get
+try:
+    from discord import File
+except ImportError:
+    File=None
+try:
+    from PIL import Image
+except ImportError:
+    Image=None
 class PopCatObject:
     def __repr__(self):
         items = ("%s=%r" % (k, v) for k, v in self.__dict__.items())
@@ -21,10 +30,10 @@ class Song(PopCatObject):
     def __init__(self,title, artist, image, lyrics):
         self.title=title
         self.artist=artist
-        self.image=image
+        self.image=Asset("song_thumbnail.png",image)
         self.lyrics=lyrics
     def __repr__(self):
-        return ("<Song title={} artist={} image={} lyrics={}...".format(self.title,self.artist,self.image,self.lyrics[:20]))
+        return ("<Song title={} artist={} image={} lyrics={}...>".format(self.title,self.artist,self.image,self.lyrics[:20]))
 class Thought(PopCatObject):
     def __init__(self, result, author, upvotes):
         self.result=result 
@@ -32,12 +41,13 @@ class Thought(PopCatObject):
         self.upvotes=upvotes
 class SubReddit(PopCatObject):
     def __init__(self,obj):
+        print("++")
         self.name=obj["name"]
         self.title=obj["title"]
         self.active_users=obj["active_users"]
         self.members=obj["members"]
         self.description=obj["description"]
-        self.icon,self.banner=obj["icon"],obj["banner"]
+        self.icon,self.banner=Asset(self.name+'png',obj["icon"]),obj["banner"]
         self.allowed_images,self.allowed_videos=obj["allow_images"],obj["allow_videos"]
         self.nsfw=obj["over_18"]
         self.url=obj["url"]
@@ -47,3 +57,33 @@ class Quote(PopCatObject):
         self.content=content 
         self.upvotes=upvotes
 
+class Asset(PopCatObject):
+    def __init__(self,name,content:Union[BytesIO,str]):
+        self._name=name 
+        _con:BytesIO
+        if isinstance(content,str):
+            print(77)
+            _con=BytesIO(get(content).content)
+        else:
+            _con=content
+        _con.seek(0)
+        self._content=_con
+    
+    @property
+    def name(self):
+        return self._name
+    
+    
+    
+    def as_dpy_file(self):
+        if not File: raise ModuleNotFoundError("Please install discord.py to use this function")
+        return File(fp=self._content,filename=self._name)
+    def as_pil_image(self):
+        if not Image: raise ModuleNotFoundError("Please install PIL/pillow to use this function")
+        return Image(BytesIO(self._content),"RGBA")
+    def save(self,name="",path=None):
+        name=name or self._name
+        path=path or name 
+        with open(path,"wb") as f:
+            f.write(self._content)
+        
