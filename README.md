@@ -43,4 +43,9 @@ asyncio.run(main())
 /fact
 /lulcat
 /mock
+/welcomecard - unstable function
+/sadcat
+/oogway
+/communism
+/car
 ```
