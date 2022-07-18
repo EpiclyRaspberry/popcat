@@ -23,6 +23,7 @@ class SubRedditNotFound(PopCatException):
         self.subreddit=subreddit 
         super().__init__(f"Subreddit {subreddit} not found")
 
-
+class ImageProcessFail(PopCatException):
+    pass
 
 

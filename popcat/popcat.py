@@ -1,8 +1,12 @@
 import aiohttp
 import re
 from io import BytesIO
+from json import loads
+from typing import Tuple
+
+
 from .exceptions import InvalidColor, SongNotFound, InvalidURL,\
-                        SubRedditNotFound
+                        SubRedditNotFound, ImageProcessFail
 from .models import Color, Song, Thought, SubReddit,\
                     Quote, Asset
 from .constants import *
@@ -47,7 +51,8 @@ class PopCat:
             self.session=session
         self.get=self.session.get
         if not image_mode in modes:
-            raise ValueError("Invalid image mode.")
+            raise ImageProcessFail("Invalid image mode.")
+        self.image_mode=DEFAULT
         if image_mode == DPY:
             if not File:
                 raise ModuleNotFoundError("Please install discord.py to use DISCORDPY image mode.")
@@ -56,6 +61,7 @@ class PopCat:
         if image_mode == PILLOW:
             if not Image:
                 raise ModuleNotFoundError("Please install PIL/pillow to use PILLOW image mode.")
+            self.image_mode=image_mode
     async def __aenter__(self):
         return self
     async def __aexit__(self,e1,e2,e3):
@@ -64,8 +70,17 @@ class PopCat:
     async def close(self):
         if session := self.session:
             await session.close()
-    def _process_image(self,bytes):
-        pass
+    def _process_image(self,name,bytes):
+        if self.image_mode==DEFAULT:
+            return Asset(name,bytes)
+        elif self.image_mode==DISCORDPY:
+            return File(fp=BytesIO(bytes).seek(0),filename=name)
+        elif self.image_mode==PILLOW:
+          try:
+            return Image.open(bytes.read())
+          except FileNotFoundError as e:
+            raise ValueError("Cannot process image") from e
+        raise ValueError("Invalid image mode provided\nProbably the code was stupid")
     #apis
     async def color(self,color:str):
         async with self.session.get(BASE_URL+"color/"+color) as resp:
@@ -85,7 +100,7 @@ class PopCat:
             async with self.get(apiurl("screenshot/",url=url)) as res:
                 buffer=BytesIO(await res.read())
                 buffer.seek(0)
-                return Asset("screenshot.png",buffer)
+                return self._process_image("screenshot.png",buffer)
         raise InvalidURL(url)
     async def chatbot(self,message,owner=None,botname=None):
         async with self.get(apiurl("chatbot",msg=message,owner=owner, botname=botname)) as resp:
@@ -122,5 +137,11 @@ class PopCat:
         async with self.get(apiurl("joke")) as resp:
             return (await resp.json())["joke"]
 
+    async def welcomecard(self,background,texts:Tuple[str,str,str],avatar):
+        "Unstable function"
+        #f not URL_REGEX.match(background) or URL_REGEX.match(avatar):
+        #    raise InvalidURL("\b")
+        async with self.get(apiurl("welcomecard/", background=background,text1=texts[0],text2=texts[1],text3=texts[2],avatar=avatar)) as res:
+            return self._process_image("card.png",BytesIO(await res.read()))
 
 

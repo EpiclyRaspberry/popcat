@@ -22,9 +22,9 @@ class Color(PopCatObject):
         self.name=name 
         self.rgb=rgb 
         self.brightened=brightened
-        self.img_url=img_url
+        self.image=Asset(hex+".png",img_url)
     def __repr__(self):
-        return f"<Color hex={self.hex} name={self.name} rgb={self.rgb} brightened={self.brightened} img_url={self.img_url}"
+        return f"<Color hex={self.hex} name={self.name} rgb={self.rgb} brightened={self.brightened} image={self.image}>"
 
 class Song(PopCatObject):
     def __init__(self,title, artist, image, lyrics):
@@ -41,13 +41,13 @@ class Thought(PopCatObject):
         self.upvotes=upvotes
 class SubReddit(PopCatObject):
     def __init__(self,obj):
-        print("++")
+        
         self.name=obj["name"]
         self.title=obj["title"]
         self.active_users=obj["active_users"]
         self.members=obj["members"]
         self.description=obj["description"]
-        self.icon,self.banner=Asset(self.name+'png',obj["icon"]),obj["banner"]
+        self.icon,self.banner=Asset(self.name+'_icon.png',obj["icon"]),Asset(self.name+"_banner.png",obj["banner"])
         self.allowed_images,self.allowed_videos=obj["allow_images"],obj["allow_videos"]
         self.nsfw=obj["over_18"]
         self.url=obj["url"]
@@ -60,12 +60,14 @@ class Quote(PopCatObject):
 class Asset(PopCatObject):
     def __init__(self,name,content:Union[BytesIO,str]):
         self._name=name 
-        _con:BytesIO
+        _con:BytesIO 
+        
         if isinstance(content,str):
-            print(77)
+            
             _con=BytesIO(get(content).content)
         else:
             _con=content
+        self._=_con
         _con.seek(0)
         self._content=_con
     
@@ -80,7 +82,7 @@ class Asset(PopCatObject):
         return File(fp=self._content,filename=self._name)
     def as_pil_image(self):
         if not Image: raise ModuleNotFoundError("Please install PIL/pillow to use this function")
-        return Image(BytesIO(self._content),"RGBA")
+        return Image.open(self._)
     def save(self,name="",path=None):
         name=name or self._name
         path=path or name 
