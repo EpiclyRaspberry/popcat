@@ -7,9 +7,10 @@ from typing import Tuple
 
 
 from .exceptions import InvalidColor, SongNotFound, InvalidURL,\
-                        SubRedditNotFound, ImageProcessFail
+                        SubRedditNotFound, ImageProcessFail,\
+                        UserNotFound 
 from .models import Color, Song, Thought, SubReddit,\
-                    Quote, Asset, Car
+                    Quote, Asset, Car, GithubAccount
 from .constants import *
 try:
     from discord import File
@@ -21,7 +22,9 @@ except ImportError:
     Image=None
 
 URL_REGEX=re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
-
+def urlcheck(url):
+    if not URL_REGEX.match(url):
+        raise InvalidURL(url)
 BASE_URL="https://api.popcat.xyz/"
 # endpoints erorrs
 # deprecated 
@@ -175,8 +178,23 @@ class PopCat:
             json=await resp.json()
             return Car(json["image"],json["title"])
 
-
-
+    
+    async def pooh(self,toptext,bottomtext):
+        async with self.get(apiurl("pooh",text1=toptext,text2=bottomtext)) as resp:
+            return self._process_image("pooh.png",BytesIO(await resp.read()))
+    
+    async def warning(self,image):
+        "https://api.popcat.xyz/wanted?image=https://media.discordapp.net/attachments/819491776988839939/876122609031471114/colorify.png"
+        urlcheck(image)
+        async with self.get(apiurl("wanted",image=image)) as resp:
+            if await error(resp):
+                raise InvalidURL(image)
+            return self._process_image("wanted.png",BytesIO(await resp.read()))
+    async def github(self,user):
+        async with self.get(apiurl("github/"+user)) as resp:
+            if await error(resp):
+                raise UserNotFound(user)
+            return GithubAccount(payload=await resp.json())
 
 
 

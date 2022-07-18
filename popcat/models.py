@@ -60,7 +60,16 @@ class Car(PopCatObject):
     def __init__(self,image,title):
         self.image=Asset(title+".png",image)
         self.title=title
-
+class GithubAccount(PopCatObject):
+    def __init__(self,payload):
+        self.url=payload["url"]
+        self.avatar=Asset(payload["name"]+".png",payload["avatar"])
+        self.name=payload["name"]
+        self.repos=payload["public_repos"]
+        self.gists=payload["public_gists"]
+        self.followers=payload["followers"]
+        self.following=payload["following"]
+        self.email=payload["email"]
 
 class Asset(PopCatObject):
     def __init__(self,name,content:Union[BytesIO,str]):

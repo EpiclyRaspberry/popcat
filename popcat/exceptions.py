@@ -27,3 +27,9 @@ class ImageProcessFail(PopCatException):
     pass
 
 
+class UserNotFound(PopCatException):
+    def __init__(self,user):
+        self.user=user 
+        super().__init__(f"User {user} not found.")
+
+
