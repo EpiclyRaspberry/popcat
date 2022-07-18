@@ -56,6 +56,11 @@ class Quote(PopCatObject):
     def __init__(self,content, upvotes):
         self.content=content 
         self.upvotes=upvotes
+class Car(PopCatObject):
+    def __init__(self,image,title):
+        self.image=Asset(title+".png",image)
+        self.title=title
+
 
 class Asset(PopCatObject):
     def __init__(self,name,content:Union[BytesIO,str]):

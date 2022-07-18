@@ -1,3 +1,4 @@
+#pylint:disable=E0001
 import aiohttp
 import re
 from io import BytesIO
@@ -8,7 +9,7 @@ from typing import Tuple
 from .exceptions import InvalidColor, SongNotFound, InvalidURL,\
                         SubRedditNotFound, ImageProcessFail
 from .models import Color, Song, Thought, SubReddit,\
-                    Quote, Asset
+                    Quote, Asset, Car
 from .constants import *
 try:
     from discord import File
@@ -143,5 +144,41 @@ class PopCat:
         #    raise InvalidURL("\b")
         async with self.get(apiurl("welcomecard/", background=background,text1=texts[0],text2=texts[1],text3=texts[2],avatar=avatar)) as res:
             return self._process_image("card.png",BytesIO(await res.read()))
+
+    async def sadcat(self,text):
+        'https://api.popcat.xyz/sadcat?text=Your+Text' 
+        async with self.get(apiurl("sadcat",text=text)) as resp:
+            return self._process_image("sadcat.png",BytesIO(await resp.read()))
+    
+    async def oogway(self,text):
+        "https://api.popcat.xyz/oogway?text=use+api.popcat.xyz"
+        async with self.get(apiurl("oogway",text=text)) as resp:
+            return self._process_image("oogway.png",BytesIO(await resp.read()))
+            
+    async def communism(self,url):
+        """https://api.popcat.xyz/communism
+        ?image=https://media.discordapp.net/
+                  attachments/
+                      819491776988839939/
+                          876122609031471114/
+                              colorify.png
+        """
+        if not URL_REGEX.match(url):
+            raise InvalidURL(url)
+        async with self.get(apiurl("communism",image=url)) as resp:
+            if await error(resp):
+                raise ValueError("Invalid image")
+            return self._process_image("communism.png",BytesIO(await resp.read()))
+    
+    async def car(self):
+        async with self.get(apiurl("car")) as resp:
+            json=await resp.json()
+            return Car(json["image"],json["title"])
+
+
+
+
+
+
 
 
