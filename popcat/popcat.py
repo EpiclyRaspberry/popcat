@@ -78,7 +78,9 @@ class PopCat:
         if self.image_mode==DEFAULT:
             return Asset(name,bytes)
         elif self.image_mode==DISCORDPY:
-            return File(fp=BytesIO(bytes).seek(0),filename=name)
+            b=BytesIO(bytes).seek(0)
+            
+            return File(fp=b.read(),filename=name)
         elif self.image_mode==PILLOW:
           try:
             return Image.open(bytes.read())

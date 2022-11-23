@@ -84,6 +84,7 @@ class Asset(PopCatObject):
         self._=_con
         _con.seek(0)
         self._content=_con
+        self._con=_con
     
     @property
     def name(self):
@@ -93,7 +94,7 @@ class Asset(PopCatObject):
     
     def as_dpy_file(self):
         if not File: raise ModuleNotFoundError("Please install discord.py to use this function")
-        return File(fp=self._content,filename=self._name)
+        return File(fp=self._con.read(),filename=self._name)
     def as_pil_image(self):
         if not Image: raise ModuleNotFoundError("Please install PIL/pillow to use this function")
         return Image.open(self._)
